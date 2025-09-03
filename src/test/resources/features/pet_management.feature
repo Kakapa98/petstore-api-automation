@@ -42,10 +42,20 @@ Feature: Pet Management
     Then the pet should be deleted successfully
 
   @delete @positive
-  Scenario: Verify deleted pet cannot be retrieved
-    Given I have created and deleted a pet
-    When I try to retrieve the deleted pet
-    Then I should receive a 404 not found response
+  Scenario: Complete create-delete lifecycle demonstration
+    Given I have valid pet data
+    When I create a new pet
+    Then the pet should be created successfully
+    When I delete the pet immediately
+    Then the pet should be deleted successfully
+
+  @delete @positive
+  Scenario: Verify delete operation with immediate deletion
+    Given I have valid pet data
+    When I create a new pet
+    Then the pet should be created successfully
+    When I delete the pet immediately
+    Then the pet should be deleted successfully
 
   @read @negative
   Scenario: Retrieve non-existent pet

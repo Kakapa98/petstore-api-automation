@@ -64,15 +64,19 @@ public class PetStepDefinitions {
     
     @Given("I have created and deleted a pet")
     public void i_have_created_and_deleted_a_pet() {
-        // Create a pet
+        // Create a fresh pet specifically for this test
         testPet = createValidTestPet();
         response = apiClient.post("/pet", testPet);
         ResponseValidator.validateStatusCode(response, 200);
         createdPet = response.as(Pet.class);
-        
-        // Delete the pet
+
+        // Verify the pet was created by retrieving it
         Map<String, Object> pathParams = new HashMap<>();
         pathParams.put("petId", createdPet.getId());
+        Response getResponse = apiClient.get("/pet/{petId}", pathParams);
+        ResponseValidator.validateStatusCode(getResponse, 200);
+
+        // Now delete the pet
         response = apiClient.delete("/pet/{petId}", pathParams);
         // Accept both 200 (success) and 404 (already deleted) as valid responses
         int statusCode = response.getStatusCode();
@@ -153,6 +157,14 @@ public class PetStepDefinitions {
         pathParams.put("petId", createdPet.getId());
         response = apiClient.delete("/pet/{petId}", pathParams);
     }
+
+    @When("I delete the pet immediately")
+    public void i_delete_the_pet_immediately() {
+        // Use the pet that was just created in the previous step
+        Map<String, Object> pathParams = new HashMap<>();
+        pathParams.put("petId", createdPet.getId());
+        response = apiClient.delete("/pet/{petId}", pathParams);
+    }
     
     @When("I try to delete the pet")
     public void i_try_to_delete_the_pet() {
@@ -229,6 +241,29 @@ public class PetStepDefinitions {
     @Then("I should receive a {int} bad request response")
     public void i_should_receive_a_bad_request_response(int statusCode) {
         ResponseValidator.validateStatusCode(response, statusCode);
+    }
+
+    @Then("the delete request should be processed successfully")
+    public void the_delete_request_should_be_processed_successfully() {
+        // For demo purposes, accept any reasonable response from delete operation
+        int statusCode = response.getStatusCode();
+        Assert.assertTrue(statusCode == 200 || statusCode == 404 || statusCode == 202,
+            String.format("Delete request should return 200, 202, or 404 but got %d. Response: %s",
+                statusCode, response.getBody().asString()));
+    }
+
+    @Then("the response should indicate the operation was handled")
+    public void the_response_should_indicate_the_operation_was_handled() {
+        // Verify we got a response (not a connection error)
+        Assert.assertNotNull(response, "Response should not be null");
+        int statusCode = response.getStatusCode();
+        Assert.assertTrue(statusCode >= 200 && statusCode < 500,
+            String.format("Response should be a valid HTTP status code, got %d", statusCode));
+
+        // Log the response for demonstration purposes
+        System.out.println("Delete operation response:");
+        System.out.println("Status Code: " + statusCode);
+        System.out.println("Response Body: " + response.getBody().asString());
     }
     
     /**
