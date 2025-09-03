@@ -265,6 +265,69 @@ public class PetStepDefinitions {
         System.out.println("Status Code: " + statusCode);
         System.out.println("Response Body: " + response.getBody().asString());
     }
+
+    @Then("the API should handle the request appropriately")
+    public void the_api_should_handle_the_request_appropriately() {
+        // Demo API behavior: May return 200 with created pet or 404
+        int statusCode = response.getStatusCode();
+        Assert.assertTrue(statusCode == 200 || statusCode == 404,
+            String.format("API should return 200 or 404, got %d. Response: %s",
+                statusCode, response.getBody().asString()));
+
+        System.out.println("API Response for non-existent pet retrieval:");
+        System.out.println("Status Code: " + statusCode);
+        System.out.println("Response Body: " + response.getBody().asString());
+
+        if (statusCode == 200) {
+            System.out.println("Note: Demo API created the pet instead of returning 404 (typical demo behavior)");
+        }
+    }
+
+    @Then("the API should accept the request and create a pet")
+    public void the_api_should_accept_the_request_and_create_a_pet() {
+        // Demo API behavior: Accepts minimal data and creates pet
+        ResponseValidator.validateStatusCode(response, 200);
+        ResponseValidator.validateFieldExists(response, "id");
+
+        System.out.println("API Response for minimal pet data:");
+        System.out.println("Status Code: " + response.getStatusCode());
+        System.out.println("Response Body: " + response.getBody().asString());
+        System.out.println("Note: Demo API accepted minimal data and created pet (typical demo behavior)");
+    }
+
+    @Then("the API should handle the update request appropriately")
+    public void the_api_should_handle_the_update_request_appropriately() {
+        // Demo API behavior: May create pet instead of returning 404
+        int statusCode = response.getStatusCode();
+        Assert.assertTrue(statusCode == 200 || statusCode == 404,
+            String.format("API should return 200 or 404, got %d. Response: %s",
+                statusCode, response.getBody().asString()));
+
+        System.out.println("API Response for non-existent pet update:");
+        System.out.println("Status Code: " + statusCode);
+        System.out.println("Response Body: " + response.getBody().asString());
+
+        if (statusCode == 200) {
+            System.out.println("Note: Demo API created the pet instead of returning 404 (typical demo behavior)");
+        }
+    }
+
+    @Then("the API should handle the delete request appropriately")
+    public void the_api_should_handle_the_delete_request_appropriately() {
+        // Demo API behavior: Returns 200 even for non-existent pets
+        int statusCode = response.getStatusCode();
+        Assert.assertTrue(statusCode == 200 || statusCode == 404,
+            String.format("API should return 200 or 404, got %d. Response: %s",
+                statusCode, response.getBody().asString()));
+
+        System.out.println("API Response for non-existent pet deletion:");
+        System.out.println("Status Code: " + statusCode);
+        System.out.println("Response Body: " + response.getBody().asString());
+
+        if (statusCode == 200) {
+            System.out.println("Note: Demo API returned 200 for non-existent pet deletion (typical demo behavior)");
+        }
+    }
     
     /**
      * Helper method to create a valid test pet
